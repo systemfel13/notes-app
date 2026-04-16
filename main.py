@@ -110,6 +110,9 @@ class NotesApp(QMainWindow):
         self.note_list = QListWidget()
         self.note_list.setObjectName("noteList")
         self.note_list.setFixedWidth(260)
+        # Let long titles wrap to multiple lines instead of being cut off
+        self.note_list.setWordWrap(True)
+        self.note_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.note_list.currentItemChanged.connect(self._on_note_selected)
         bottom_section_layout.addWidget(self.note_list)
 
