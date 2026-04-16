@@ -19,7 +19,8 @@ def init_db():
 def get_all_notes():
     connection = sqlite3.connect(DB_PATH)
     cursor = connection.cursor()
-    cursor.execute("SELECT note_id, note_title FROM notes")
+    # Newest notes first — sort by ID from highest to lowest
+    cursor.execute("SELECT note_id, note_title FROM notes ORDER BY note_id DESC")
     notes = cursor.fetchall()
     connection.close()
     return notes
