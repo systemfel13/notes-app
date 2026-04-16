@@ -2,12 +2,19 @@ import os
 import subprocess
 import sys
 
-APP_USER_MODEL_ID = "isabella.notes.app"
+# A unique name that Windows use to recognize the app
+# It tells Windows "the shortcut and the running program are the same app"
+# The same name is also set in main.py. When both match, Windows shows one single icon in the taskbar instead of two separate ones
+# The dot-separated style is a common convention for app names, it keeps them unique and easy to tell apart from file names
+APP_USER_MODEL_ID = "notes.app" 
 
 
 def create_desktop_shortcut():
     project_directory = os.path.dirname(os.path.abspath(__file__))
 
+    # pythonw.exe is a version of Python that runs without opening a black terminal window
+    # It's created automatically inside the virtual environment
+    # So the app opens cleanly as a normal window program
     pythonw_path = os.path.join(project_directory, "venv", "Scripts", "pythonw.exe")
     if not os.path.exists(pythonw_path):
         print(f"Could not find pythonw.exe at: {pythonw_path}")
@@ -25,13 +32,13 @@ def create_desktop_shortcut():
         sys.exit(1)
 
     desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+    # A .lnk file for a standard Windows shortcut
+    # It stores which program to open, what icon to show, and where to start
     shortcut_path = os.path.join(desktop_path, "Notes.lnk")
 
-    # Step 1: Create the .lnk shortcut file using the built-in WScript.Shell COM object.
-    # Step 2: Set the AppUserModelID property on the shortcut using the IPropertyStore
-    # COM interface (via inline C# compiled in PowerShell). This property tells Windows
-    # to group the running app together with the shortcut in the taskbar, instead of
-    # showing them as two separate icons.
+    # This script does two things:
+    # 1. Creates the shortcut file on the desktop (what to open, which icon to show, etc.)
+    # 2. Stamps the shortcut with our app name so Windows knows the shortcut and the running program belong together — otherwise they show up as two separate icons in the taskbar
     powershell_script = f'''
 $WshShell = New-Object -ComObject WScript.Shell
 $Shortcut = $WshShell.CreateShortcut('{shortcut_path}')

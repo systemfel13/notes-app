@@ -32,7 +32,7 @@ class NotesApp(QMainWindow):
         root_layout.setContentsMargins(0, 0, 0, 0)
         root_layout.setSpacing(0)
 
-        # --- Top section: sidebar header + buttons/title ---
+        # Top section: sidebar header + buttons/title 
         top_section = QWidget()
         top_section_layout = QHBoxLayout(top_section)
         top_section_layout.setContentsMargins(0, 0, 0, 0)
@@ -95,13 +95,13 @@ class NotesApp(QMainWindow):
         top_section_layout.addWidget(header_right, 1)
         root_layout.addWidget(top_section)
 
-        # --- Full-width separator line ---
+        # Full-width separator line between the top and bottom sections
         title_separator = QFrame()
         title_separator.setObjectName("titleSeparator")
         title_separator.setFixedHeight(1)
         root_layout.addWidget(title_separator)
 
-        # --- Bottom section: note list + editor ---
+        # Bottom section: note list + editor 
         bottom_section = QWidget()
         bottom_section_layout = QHBoxLayout(bottom_section)
         bottom_section_layout.setContentsMargins(0, 0, 0, 0)
@@ -372,14 +372,19 @@ class NotesApp(QMainWindow):
                 self.note_list.setCurrentItem(item)
                 return
 
+# This function runs when the user clicks on a note in the sidebar
+# First, it checks if the note currently open has unsaved changes
+# If yes, a popup appears asking "do you want to save?" before anything else happens
+# While that popup is open, the user might click another note by accident
+# That would trigger this function a second time before the first one finished
+# The _loading_note flag prevents that, if the function is already running, it stops immediately
+# Once that's handled, the clicked note is fetched from the database and displayed in the editor with the correct font, scrolled to the top
     def _on_note_selected(self, current: QListWidgetItem, _previous):
         if current is None:
             self.current_note_id = None
             self._set_editor_enabled(False)
             return
 
-        # Guard against re-entrant calls caused by _prompt_save's modal dialog
-        # running the event loop, which can re-trigger this slot.
         if self._loading_note:
             return
         self._loading_note = True
@@ -399,12 +404,11 @@ class NotesApp(QMainWindow):
             self.title_edit.blockSignals(True)
             self.text_edit.blockSignals(True)
             self.title_edit.setText(note[1] or "")
-            # toHtml() embeds inline "background-color:#ffffff" in the HTML body.
-            # Replace it with transparent so the editor's pink background shows through.
+            # toHtml() embeds inline "background-color:#ffffff" in the HTML body
+            # Replace it with transparent so the editor's pink background shows through
             html = (note[2] or "").replace("background-color:#ffffff", "background-color:transparent")
             self.text_edit.setHtml(html)
 
-            # Only replace font family and size — preserve bold, underline, etc.
             cursor = self.text_edit.textCursor()
             cursor.select(QTextCursor.SelectionType.Document)
             fmt = QTextCharFormat()
@@ -412,8 +416,7 @@ class NotesApp(QMainWindow):
             fmt.setFontPointSize(14)
             cursor.mergeCharFormat(fmt)
             cursor.clearSelection()
-            # The font merge left the cursor at the end, which scrolled the
-            # editor to the bottom. Moving it to the start fixes that.
+            # The font merge left the cursor at the end, which scrolled the editor to the bottom. Moving it to the start fixes that
             cursor.movePosition(QTextCursor.MoveOperation.Start)
             self.text_edit.setTextCursor(cursor)
             self.title_edit.blockSignals(False)
@@ -439,7 +442,7 @@ class NotesApp(QMainWindow):
             return
 
         title = self.title_edit.text().strip()
-        # Use toHtml instead of toPlainText to preserve line breaks and formatting.
+        # Use toHtml instead of toPlainText to preserve line breaks and formatting
         text = self.text_edit.toHtml()
 
         if not title:
@@ -495,7 +498,7 @@ def main():
     # Without this, the taskbar shows a separate icon for the running process
     # instead of grouping it with the desktop shortcut.
     import ctypes
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("isabella.notes.app")
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("notes.app")
 
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
