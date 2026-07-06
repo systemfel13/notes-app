@@ -1,15 +1,51 @@
 import os
 import sys
+import database
 
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QListWidget, QListWidgetItem, QTextEdit, QLineEdit, QPushButton,
-    QMessageBox, QLabel, QFrame
+    QMessageBox, QLabel, QFrame, QStyledItemDelegate, QStyleOptionViewItem
 )
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont, QFontDatabase, QIcon, QPalette, QColor, QTextCharFormat, QTextCursor
+from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtGui import QFont, QFontDatabase, QIcon, QPalette, QColor, QTextCharFormat, QTextCursor, QTextDocument, QTextOption
 
-import database
+
+class NoteTitleDelegate(QStyledItemDelegate):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._horizontal_padding = 32
+        self._vertical_padding = 20
+
+    def paint(self, painter, option, index):
+        options = QStyleOptionViewItem(option)
+        self.initStyleOption(options, index)
+        options.textElideMode = Qt.TextElideMode.ElideNone
+        options.features |= QStyleOptionViewItem.ViewItemFeature.WrapText
+        options.displayAlignment = Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop
+        super().paint(painter, options, index)
+
+    def sizeHint(self, option, index):
+        options = QStyleOptionViewItem(option)
+        self.initStyleOption(options, index)
+
+        width = options.rect.width()
+        if width <= 0 and options.widget is not None:
+            width = options.widget.viewport().width()
+
+        text_width = max(width - self._horizontal_padding, 20)
+
+        doc = QTextDocument()
+        doc.setDefaultFont(options.font)
+        text_option = QTextOption()
+        text_option.setWrapMode(QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
+        doc.setDefaultTextOption(text_option)
+        doc.setPlainText(options.text)
+        doc.setTextWidth(text_width)
+
+        height = int(doc.size().height()) + self._vertical_padding
+        return QSize(width, height)
+
 
 class NotesApp(QMainWindow):
     def __init__(self):
@@ -110,8 +146,7 @@ class NotesApp(QMainWindow):
         self.note_list = QListWidget()
         self.note_list.setObjectName("noteList")
         self.note_list.setFixedWidth(260)
-        # Let long titles wrap to multiple lines instead of being cut off
-        self.note_list.setWordWrap(True)
+        self.note_list.setItemDelegate(NoteTitleDelegate(self.note_list))
         self.note_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.note_list.currentItemChanged.connect(self._on_note_selected)
         bottom_section_layout.addWidget(self.note_list)
