@@ -8,7 +8,7 @@ Built with Python and PyQt6, with all notes stored locally in a SQLite database.
 - Bold and underline text formatting
 - Notes are listed in a sidebar, with the most recent note at the top
 - Warns before discarding unsaved changes
-- All data stored locally — nothing is sent anywhere
+- All data stored locally
 - Soft pink theme with custom serif fonts (EB Garamond / Cormorant Garamond)
 
 ## Requirements
@@ -18,7 +18,7 @@ Built with Python and PyQt6, with all notes stored locally in a SQLite database.
 ## Getting Started
 1. **Clone the repository**
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/systemfel13/notes-app.git
    cd notes-app
    ```
 
