@@ -11,6 +11,7 @@ from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QFont, QFontDatabase, QIcon, QPalette, QColor, QTextCharFormat, QTextCursor, QTextDocument, QTextOption
 
 
+# Truncates long note titles in the sidebar and wraps them to multiple lines if necessary
 class NoteTitleDelegate(QStyledItemDelegate):
     def __init__(self, parent=None):
         super().__init__(parent)
